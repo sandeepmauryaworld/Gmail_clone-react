@@ -1,4 +1,5 @@
 import React from 'react'
+import { useState } from 'react'
 import { Dialog,Box , Typography,styled, InputBase, TextField, Button} from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -60,6 +61,17 @@ const Header= styled(Box)({
     })
 const ComposeMail = ({openDialog,setOpenDialog}) => {
 
+    const [data, setData]=useState({})
+
+
+    const config={
+         Host : "smtp.elasticemail.com",
+    Username : process.env.REACT_APP_USERNAME,
+    Password : process.env.REACT_APP_PASSWORD,
+  
+    port:2525
+    }
+
 
     const closeComposeMail=(e)=>{
         e.preventDefault()
@@ -67,6 +79,36 @@ const ComposeMail = ({openDialog,setOpenDialog}) => {
 
 
     }
+
+    const sendMail=(e)=>{
+
+e.preventDefault();
+
+        if(window.Email){ 
+
+             window.Email.send({
+    ...config,
+    To : data.to,
+    From : "mexicool541@gmail.com",
+    Subject : data.subject,
+    Body : data.body,
+    }
+ 
+).then(
+  message => alert(message)
+);}
+
+        setOpenDialog(false)
+    }
+
+    const onValueChnage=(e)=>{
+        console.log('jhhh',e);
+        console.log(e.target.name, e.target.value,'eeeeeeee');
+
+        setData({...data, [e.target.name]:e.target.value})
+        console.log(data,'data');
+    }
+
   return (
    <Dialog 
    open={openDialog}
@@ -82,20 +124,22 @@ const ComposeMail = ({openDialog,setOpenDialog}) => {
                 
             </Header>
              <RecipentWrapper>
-                <InputBase placeholder='Recipent'/>
-                <InputBase placeholder='Subject'/>
+                <InputBase placeholder='Recipent' name='to' onChange={(e)=>{onValueChnage(e)}}/>
+                <InputBase placeholder='Subject' name='subject' onChange={(e)=>{onValueChnage(e)}}/>
             </RecipentWrapper>
           
 
           <TextField
+          name='body'
+          onChange={(e)=>{onValueChnage(e)}}
           multiline
           rows={13}
           sx={{ '&. MuiOutlinedInput-notchedOutline':{border:'none'}}}
           />
             
           <FooterWrapper>
-            <SendButton variant='contained' sx={{marginTop:2}}>Send</SendButton>
-            <DeleteIcon/>
+            <SendButton onClick={(e)=>sendMail(e)} variant='contained' sx={{marginTop:2}}>Send</SendButton>
+            <DeleteIcon onClick={()=>setOpenDialog(false)} />
           </FooterWrapper>
 
         </Dialog>
